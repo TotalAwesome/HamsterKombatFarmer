@@ -25,3 +25,5 @@
 
 
 Обсудить можно здесь: https://t.me/CryptoAutoFarm
+
+Для донатов: USDT TRC20: TTTMM1PXxNS7d3tAcruamT6GE8ye5BrZ4w
