@@ -13,6 +13,7 @@
 - Разгадывать шифр с морзянкой
 - В игру не нужно заходить каждые 3 часа, чтоб собрать пассивный доход
 - Мультиаккаунтинг
+- Прокси
 
 Все как обычно.
 
@@ -27,6 +28,6 @@
 ![image](https://github.com/TotalAwesome/HamsterKombatFarmer/assets/39047158/6a0eab71-b6b6-4e3b-a5b6-ad1d8ebd85d3)
 
 
-Обсудить можно здесь: https://t.me/CryptoAutoFarm
+Ответы почти на все вопросы уже есть в чате и в закрепе: https://t.me/CryptoAutoFarm
 
 Для донатов: USDT TRC20: TTTMM1PXxNS7d3tAcruamT6GE8ye5BrZ4w

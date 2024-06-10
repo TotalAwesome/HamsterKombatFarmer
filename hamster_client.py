@@ -2,13 +2,14 @@ import re
 import logging
 
 from base64 import b64decode
-from requests import Session
+from requests import Session, get as requests_get
 from time import time, sleep
 from strings import URL_BOOSTS_FOR_BUY, URL_BUY_BOOST, URL_BUY_UPGRADE, \
     URL_SYNC, URL_TAP, URL_UPGRADES_FOR_BUY, HEADERS, BOOST_ENERGY, URL_CHECK_TASK, \
     URL_CLAIM_DAILY_COMBO, MSG_BUY_UPGRADE, MSG_BAD_RESPONSE, MSG_SESSION_ERROR, \
     MSG_COMBO_EARNED, MSG_TAP, MSG_CLAIMED_COMBO_CARDS, MSG_SYNC, URL_CONFIG, \
-        URL_CLAIM_DAILY_CIPHER, MSG_CIPHER, MSG_CRYPTED_CIPHER, MORSE_CODE_DICT
+    URL_CLAIM_DAILY_CIPHER, MSG_CIPHER, MSG_CRYPTED_CIPHER, MORSE_CODE_DICT, \
+    URL_CHECK_IP, MSG_PROXY_CHECK_ERROR, MSG_PROXY_IP, MSG_PROXY_CONNECTION_ERROR
     
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s   %(message)s")
@@ -22,12 +23,16 @@ def sorted_by_profit(prepared):
     return sorted(prepared, key=lambda x: x["profitPerHourDelta"], reverse=True)
 
 
-def sorted_by_profit_per_coin(prepared):
-    return sorted(prepared, key=lambda x: x["profitness"], reverse=True)
+def sorted_by_profitness(prepared):
+    return sorted(prepared, key=lambda x: x['profitPerHourDelta'] / x['price'], reverse=True)
 
 
 def sorted_by_price(prepared):
     return sorted(prepared, key=lambda x: x["price"], reverse=False)
+
+
+def sorted_by_payback(prepared):
+    return sorted(prepared, key=lambda x: x['price'] / x['profitPerHourDelta'], reverse=False)
 
 
 def retry(func):
@@ -49,6 +54,18 @@ def retry(func):
     return wrapper
 
 
+def check_proxy(proxies):
+    try:
+        response = requests_get(URL_CHECK_IP, proxies=proxies)
+        if response.status_code == 200:
+            logging.info(MSG_PROXY_IP.format(ip=response.json()['origin']))
+            return True
+        else:
+            logging.error(MSG_PROXY_CHECK_ERROR.format(status_code=response.status_code))
+    except Exception as error:
+        logging.error(MSG_PROXY_CONNECTION_ERROR.format(error=error))
+
+
 class HamsterClient(Session):
 
     name = None
@@ -58,14 +75,16 @@ class HamsterClient(Session):
     task_checked_at = None
     
 
-    def __init__(self, token, name="NoName") -> None:
+    def __init__(self, token, name="NoName", proxies=None) -> None:
         super().__init__()
         headers = HEADERS.copy()
         headers["Authorization"] = f"Bearer {token}"
         self.headers = headers
         self.request = retry(super().request)
         self.name = name
-
+        if proxies and check_proxy(proxies):
+            self.proxies = proxies
+            
     def get_cipher_data(self):
         result = self.post(URL_CONFIG).json()
         return result['dailyCipher']
@@ -105,11 +124,9 @@ class HamsterClient(Session):
         
     def tap(self):
         taps_count = self.available_taps or self.recover_per_sec
-        data = {
-            "count": taps_count,
-            "availableTaps": self.available_taps - taps_count,
-            "timestamp": timestamp(),
-        }
+        data = {"count": taps_count,
+                "availableTaps": self.available_taps - taps_count,
+                "timestamp": timestamp()}
         self.post(URL_TAP, json=data).json()
         logging.info(self.log_prefix + MSG_TAP.format(taps_count=taps_count))
 
@@ -161,7 +178,7 @@ class HamsterClient(Session):
                 return True
     
 
-    def get_sorted_upgrades(self):
+    def get_sorted_upgrades(self, method):
         """
             1. Фильтруем карточки 
                 - доступные для покупки
@@ -170,7 +187,10 @@ class HamsterClient(Session):
                 - без ожидания перезарядки
             2. Сортируем по профитности на каждую потраченную монету
         """
-
+        methods = dict(payback=sorted_by_payback, 
+                       price=sorted_by_price,
+                       profit=sorted_by_profit,
+                       profitness=sorted_by_profitness)
         prepared = []
         for upgrade in self.upgrades.get("upgradesForBuy"):
             if (
@@ -182,18 +202,17 @@ class HamsterClient(Session):
                 item = upgrade.copy()
                 if 'condition' in item :
                     item.pop('condition')
-                item['profitness'] = item['profitPerHourDelta'] / item['price']
                 prepared.append(item)
         if prepared:
-            sorted_items = [i for i in sorted_by_profit_per_coin(prepared)[:50] if i['price'] <= self.balance]
+            sorted_items = [i for i in methods[method](prepared)] # if i['price'] <= self.balance]
             return sorted_items
         return []
 
-    def buy_upgrades(self):
+    def buy_upgrades(self, method):
         """ Покупаем лучшие апгрейды на всю котлету """
         while True:
             self.upgrdades_list()
-            if sorted_upgrades := self.get_sorted_upgrades():
+            if sorted_upgrades := self.get_sorted_upgrades(method):
                 upgrade = sorted_upgrades[0]
                 if upgrade['price'] <= self.balance:
                     result = self.upgrade(upgrade['id'])
