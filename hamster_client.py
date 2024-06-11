@@ -138,7 +138,7 @@ class HamsterClient(Session):
         data = {"upgradeId": upgrade_name, "timestamp": timestamp()}
         return self.post(URL_BUY_UPGRADE, json=data)
 
-    def upgrdades_list(self):
+    def upgrades_list(self):
         self.upgrades = self.post(URL_UPGRADES_FOR_BUY).json()
 
     def boosts_list(self):
@@ -211,7 +211,7 @@ class HamsterClient(Session):
     def buy_upgrades(self, method):
         """ Покупаем лучшие апгрейды на всю котлету """
         while True:
-            self.upgrdades_list()
+            self.upgrades_list()
             if sorted_upgrades := self.get_sorted_upgrades(method):
                 upgrade = sorted_upgrades[0]
                 if upgrade['price'] <= self.balance:

@@ -14,6 +14,8 @@ def main():
             client.tap()
             if FEATURES.get('buy_upgrades', True):
                 client.buy_upgrades(FEATURES.get('buy_decision_method', 'payback'))
+            else:
+                client.upgrades_list()
             client.check_task()
             client.claim_combo_reward()
             if client.is_taps_boost_available:
