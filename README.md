@@ -31,3 +31,11 @@
 Ответы почти на все вопросы уже есть в чате и в закрепе: https://t.me/CryptoAutoFarm
 
 Для донатов: USDT TRC20: TTTMM1PXxNS7d3tAcruamT6GE8ye5BrZ4w
+
+Использование Docker:
+1. Переходим в директорию с приложением
+2. Делаем docker-compose build --no-cache --progress plain
+3. После сборки docker-compose up
+3.1. Запуск в фоновом режиме вместо обычного - docker-compose up -d
+3.2. Просмотр логов приложения (Что оно работает) - docker logs hamsterkombat-app
+3.3. Выключить фоновый процесс - docker-compose down
