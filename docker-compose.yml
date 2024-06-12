@@ -1,0 +1,14 @@
+version: "3.6"
+services:
+  app:
+    image: hamsterkombat-app
+    container_name: hamsterkombat-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./hamster_client.py:/home/app/hamster_client.py
+      - ./requirements.txt:/home/app/requirements.txt
+      - ./strings.py:/home/app/strings.py
+      - ./bot.py:/home/app/bot.py
+      - ./config.py:/home/app/config.py
