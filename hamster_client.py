@@ -75,11 +75,11 @@ class HamsterClient(Session):
     task_checked_at = None
     
 
-    def __init__(self, token, name="NoName", proxies=None) -> None:
+    def __init__(self, token, name="NoName", proxies=None, **kwargs) -> None:
         super().__init__()
-        headers = HEADERS.copy()
-        headers["Authorization"] = f"Bearer {token}"
-        self.headers = headers
+        self.features = kwargs
+        self.headers = HEADERS.copy()
+        self.headers["Authorization"] = f"Bearer {token}"
         self.request = retry(super().request)
         self.name = name
         if proxies and check_proxy(proxies):
@@ -208,22 +208,25 @@ class HamsterClient(Session):
             return sorted_items
         return []
 
-    def buy_upgrades(self, method):
+    def buy_upgrades(self):
         """ Покупаем лучшие апгрейды на всю котлету """
-        while True:
-            self.upgrades_list()
-            if sorted_upgrades := self.get_sorted_upgrades(method):
-                upgrade = sorted_upgrades[0]
-                if upgrade['price'] <= self.balance:
-                    result = self.upgrade(upgrade['id'])
-                    if result.status_code == 200:
-                        self.state = result.json()["clickerUser"]
-                    logging.info(self.log_prefix + MSG_BUY_UPGRADE.format(**upgrade))
-                    sleep(1)
+        if self.features['buy_upgrades']:
+            while True:
+                self.upgrades_list()
+                if sorted_upgrades := self.get_sorted_upgrades(self.features['buy_decision_method']):
+                    upgrade = sorted_upgrades[0]
+                    if upgrade['price'] <= self.balance:
+                        result = self.upgrade(upgrade['id'])
+                        if result.status_code == 200:
+                            self.state = result.json()["clickerUser"]
+                        logging.info(self.log_prefix + MSG_BUY_UPGRADE.format(**upgrade))
+                        sleep(1)
+                    else:
+                        break
                 else:
                     break
-            else:
-                break
+        else:
+            self.upgrades_list()
 
     def claim_combo_reward(self):
         """ Если вдруг насобирал комбо - нужно получить награду """

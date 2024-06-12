@@ -1,9 +1,9 @@
 from random import choice
 from hamster_client import BOOST_ENERGY, HamsterClient, sleep, logging
-from config import TOKENS, FEATURES
+from config import ACCOUNTS, FEATURES
 from strings import DELIMITER
    
-clients = [HamsterClient(**options) for options in TOKENS]
+clients = [HamsterClient(**options) for options in ACCOUNTS]
 
 def main():
     while True:
@@ -12,10 +12,7 @@ def main():
             client.sync()
             client.claim_daily_cipher()
             client.tap()
-            if FEATURES.get('buy_upgrades', True):
-                client.buy_upgrades(FEATURES.get('buy_decision_method', 'payback'))
-            else:
-                client.upgrades_list()
+            client.buy_upgrades()
             client.check_task()
             client.claim_combo_reward()
             if client.is_taps_boost_available:
