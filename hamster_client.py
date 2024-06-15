@@ -1,6 +1,7 @@
 import re
 import logging
 
+from random import choice
 from base64 import b64decode
 from requests import Session, get as requests_get
 from time import time, sleep
@@ -10,7 +11,7 @@ from strings import URL_BOOSTS_FOR_BUY, URL_BUY_BOOST, URL_BUY_UPGRADE, \
     MSG_COMBO_EARNED, MSG_TAP, MSG_CLAIMED_COMBO_CARDS, MSG_SYNC, URL_CONFIG, \
     URL_CLAIM_DAILY_CIPHER, MSG_CIPHER, MSG_CRYPTED_CIPHER, MORSE_CODE_DICT, \
     URL_CHECK_IP, MSG_PROXY_CHECK_ERROR, MSG_PROXY_IP, MSG_PROXY_CONNECTION_ERROR
-    
+
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s   %(message)s")
 
@@ -73,7 +74,6 @@ class HamsterClient(Session):
     boosts = None
     upgrades = None
     task_checked_at = None
-    
 
     def __init__(self, token, name="NoName", proxies=None, **kwargs) -> None:
         super().__init__()
@@ -84,7 +84,7 @@ class HamsterClient(Session):
         self.name = name
         if proxies and check_proxy(proxies):
             self.proxies = proxies
-            
+
     def get_cipher_data(self):
         result = self.post(URL_CONFIG).json()
         return result['dailyCipher']
@@ -121,7 +121,7 @@ class HamsterClient(Session):
         if not self.task_checked_at or time() - self.task_checked_at >= 60 * 60:
             self.post(URL_CHECK_TASK, json=data)
             self.task_checked_at = time()
-        
+
     def tap(self):
         taps_count = self.available_taps or self.recover_per_sec
         data = {"count": taps_count,
@@ -176,18 +176,17 @@ class HamsterClient(Session):
                 and boost["level"] <= boost["maxLevel"]
             ):
                 return True
-    
 
     def get_sorted_upgrades(self, method):
         """
-            1. Фильтруем карточки 
+            1. Фильтруем карточки
                 - доступные для покупки
                 - не просроченные
                 - с пассивным доходом
                 - без ожидания перезарядки
             2. Сортируем по профитности на каждую потраченную монету
         """
-        methods = dict(payback=sorted_by_payback, 
+        methods = dict(payback=sorted_by_payback,
                        price=sorted_by_price,
                        profit=sorted_by_profit,
                        profitness=sorted_by_profitness)
@@ -211,16 +210,21 @@ class HamsterClient(Session):
     def buy_upgrades(self):
         """ Покупаем лучшие апгрейды на всю котлету """
         if self.features['buy_upgrades']:
+            counter = 0
             while True:
                 self.upgrades_list()
                 if sorted_upgrades := self.get_sorted_upgrades(self.features['buy_decision_method']):
                     upgrade = sorted_upgrades[0]
-                    if upgrade['price'] <= self.balance:
+                    if upgrade['price'] <= self.balance and self.balance > self.features['min_cash_value_in_balance']:
                         result = self.upgrade(upgrade['id'])
                         if result.status_code == 200:
                             self.state = result.json()["clickerUser"]
                         logging.info(self.log_prefix + MSG_BUY_UPGRADE.format(**upgrade))
-                        sleep(1)
+                        counter += 1
+                        num_purchases_per_cycle = self.features['num_purchases_per_cycle']
+                        if num_purchases_per_cycle and counter >= num_purchases_per_cycle:
+                            break
+                        sleep(choice(range(1, 10)))
                     else:
                         break
                 else:
@@ -231,7 +235,7 @@ class HamsterClient(Session):
     def claim_combo_reward(self):
         """ Если вдруг насобирал комбо - нужно получить награду """
         combo = self.upgrades.get('dailyCombo', {})
-        upgrades =  combo.get('upgradeIds', [])
+        upgrades = combo.get('upgradeIds', [])
         combo_cards = " ".join(upgrades)
         logging.info(self.log_prefix + MSG_CLAIMED_COMBO_CARDS.format(cards=combo_cards))
         if combo and len(upgrades) == 3:
@@ -249,7 +253,7 @@ class HamsterClient(Session):
             'баланс' : self.balance,
             "доход в час" : self.state['earnPassivePerHour']
         }
-    
+
     @property
     def log_prefix(self):
         return f"[{self.name}]\t "
