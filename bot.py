@@ -2,7 +2,7 @@ from random import choice
 from hamster_client import BOOST_ENERGY, HamsterClient, sleep, logging
 from config import ACCOUNTS, FEATURES
 from strings import DELIMITER
-   
+
 clients = [HamsterClient(**options) for options in ACCOUNTS]
 
 def main():
@@ -20,7 +20,9 @@ def main():
             logging.info(client.log_prefix + " ".join(f"{k}: {v} |" for k, v in client.stats.items()))
             print(DELIMITER)
             sleep(choice(range(1, 10)))
-        sleep(FEATURES.get('delay_between_attempts', 60 * 10))
+        delay_between_attempts = FEATURES.get('delay_between_attempts', 60 * 10)
+        sleep(choice(range(delay_between_attempts, delay_between_attempts + 60)))
+
 
 if __name__ == "__main__":
     main()
