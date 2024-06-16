@@ -216,7 +216,7 @@ class HamsterClient(Session):
                 self.upgrades_list()
                 if sorted_upgrades := self.get_sorted_upgrades(self.features['buy_decision_method']):
                     upgrade = sorted_upgrades[0]
-                    if upgrade['price'] <= self.balance \ 
+                    if upgrade['price'] <= self.balance \
                     and self.balance > self.features['min_cash_value_in_balance'] \
                     and num_purchases_per_cycle and counter < num_purchases_per_cycle:
                         result = self.upgrade(upgrade['id'])
