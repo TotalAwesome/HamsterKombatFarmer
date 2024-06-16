@@ -211,19 +211,19 @@ class HamsterClient(Session):
         """ Покупаем лучшие апгрейды на всю котлету """
         if self.features['buy_upgrades']:
             counter = 0
+            num_purchases_per_cycle = self.features['num_purchases_per_cycle']
             while True:
                 self.upgrades_list()
                 if sorted_upgrades := self.get_sorted_upgrades(self.features['buy_decision_method']):
                     upgrade = sorted_upgrades[0]
-                    if upgrade['price'] <= self.balance and self.balance > self.features['min_cash_value_in_balance']:
+                    if upgrade['price'] <= self.balance \ 
+                    and self.balance > self.features['min_cash_value_in_balance'] \
+                    and num_purchases_per_cycle and counter < num_purchases_per_cycle:
                         result = self.upgrade(upgrade['id'])
                         if result.status_code == 200:
                             self.state = result.json()["clickerUser"]
                         logging.info(self.log_prefix + MSG_BUY_UPGRADE.format(**upgrade))
                         counter += 1
-                        num_purchases_per_cycle = self.features['num_purchases_per_cycle']
-                        if num_purchases_per_cycle and counter >= num_purchases_per_cycle:
-                            break
                         sleep(choice(range(1, 10)))
                     else:
                         break
