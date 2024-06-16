@@ -5,12 +5,7 @@ from random import choice
 from base64 import b64decode
 from requests import Session, get as requests_get
 from time import time, sleep
-from strings import URL_BOOSTS_FOR_BUY, URL_BUY_BOOST, URL_BUY_UPGRADE, \
-    URL_SYNC, URL_TAP, URL_UPGRADES_FOR_BUY, HEADERS, BOOST_ENERGY, URL_CHECK_TASK, \
-    URL_CLAIM_DAILY_COMBO, MSG_BUY_UPGRADE, MSG_BAD_RESPONSE, MSG_SESSION_ERROR, \
-    MSG_COMBO_EARNED, MSG_TAP, MSG_CLAIMED_COMBO_CARDS, MSG_SYNC, URL_CONFIG, \
-    URL_CLAIM_DAILY_CIPHER, MSG_CIPHER, MSG_CRYPTED_CIPHER, MORSE_CODE_DICT, \
-    URL_CHECK_IP, MSG_PROXY_CHECK_ERROR, MSG_PROXY_IP, MSG_PROXY_CONNECTION_ERROR
+from strings import *
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s   %(message)s")
