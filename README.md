@@ -28,6 +28,6 @@
 ![image](https://github.com/TotalAwesome/HamsterKombatFarmer/assets/39047158/6a0eab71-b6b6-4e3b-a5b6-ad1d8ebd85d3)
 
 
-Ответы почти на все вопросы уже есть в чате и в закрепе: https://t.me/CryptoAutoFarm
+Ответы почти на все вопросы уже есть в чате и в канале и его чате: https://t.me/cryptoearnfactory
 
 Для донатов: USDT TRC20: TTTMM1PXxNS7d3tAcruamT6GE8ye5BrZ4w
