@@ -32,8 +32,8 @@ def sorted_by_price(prepared):
     return sorted(prepared, key=lambda x: x["price"], reverse=False)
 
 
-def sorted_by_payback(prepared):
-    return sorted(prepared, key=lambda x: x['price'] / x['profitPerHourDelta'], reverse=False)
+def sorted_by_payback(prepared, earn):
+    return sorted(prepared, key=lambda x: x['price'] / (earn + x['profitPerHourDelta']), reverse=False)
 
 
 def retry(func):
@@ -186,7 +186,7 @@ class HamsterClient(Session):
                 - без ожидания перезарядки
             2. Сортируем по профитности на каждую потраченную монету
         """
-        methods = dict(payback=sorted_by_payback,
+        methods = dict(payback=lambda upgrades: sorted_by_payback(upgrades, self.state['earnPassivePerHour']),
                        price=sorted_by_price,
                        profit=sorted_by_profit,
                        profitness=sorted_by_profitness)
@@ -203,7 +203,7 @@ class HamsterClient(Session):
                     item.pop('condition')
                 prepared.append(item)
         if prepared:
-            sorted_items = [i for i in methods[method](prepared)] # if i['price'] <= self.balance]
+            sorted_items = methods[method](prepared) # if i['price'] <= self.balance]
             return sorted_items
         return []
 
