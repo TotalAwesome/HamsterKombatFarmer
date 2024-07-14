@@ -1,7 +1,7 @@
 from random import choice
 from hamster_client import BOOST_ENERGY, HamsterClient, sleep, logging
 from config import ACCOUNTS, FEATURES
-from strings import DELIMITER
+from strings import DELIMITER, MSG_DELAY
 
 clients = [HamsterClient(**options) for options in ACCOUNTS]
 
@@ -21,6 +21,7 @@ def main():
             print(DELIMITER)
             sleep(choice(range(1, 10)))
         delay_between_attempts = FEATURES.get('delay_between_attempts', 60 * 10)
+        logging.info(MSG_DELAY.format(delay=delay_between_attempts))
         sleep(choice(range(delay_between_attempts, delay_between_attempts + 60)))
 
 

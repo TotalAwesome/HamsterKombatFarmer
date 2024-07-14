@@ -24,6 +24,9 @@ MSG_SYNC = "Обновление данных"
 MSG_PROXY_IP = "Прокси работает. Ваш IP через прокси: {ip}"
 MSG_PROXY_CHECK_ERROR = "Ошибка при проверке прокси. Код ответа: {status_code}"
 MSG_PROXY_CONNECTION_ERROR = "Не удалось подключиться через прокси: {error}"
+MIN_CASH_VALUE = "Так как ваш текущий баланс - {current_balance} меньше минимального баланса для покупок - " \
+                 "{min_balance} (установлен в config.py), покупки карточек приостановленны !"
+MSG_DELAY = "Установлена задержка запуска между циклами - примерно {delay} сек."
 
 BOOST_ENERGY = "BoostFullAvailableTaps"
 DELIMITER = "=" * 150

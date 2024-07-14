@@ -10,7 +10,7 @@ from strings import URL_BOOSTS_FOR_BUY, URL_BUY_BOOST, URL_BUY_UPGRADE, \
     URL_CLAIM_DAILY_COMBO, MSG_BUY_UPGRADE, MSG_BAD_RESPONSE, MSG_SESSION_ERROR, \
     MSG_COMBO_EARNED, MSG_TAP, MSG_CLAIMED_COMBO_CARDS, MSG_SYNC, URL_CONFIG, \
     URL_CLAIM_DAILY_CIPHER, MSG_CIPHER, MSG_CRYPTED_CIPHER, MORSE_CODE_DICT, \
-    URL_CHECK_IP, MSG_PROXY_CHECK_ERROR, MSG_PROXY_IP, MSG_PROXY_CONNECTION_ERROR
+    URL_CHECK_IP, MSG_PROXY_CHECK_ERROR, MSG_PROXY_IP, MSG_PROXY_CONNECTION_ERROR, MIN_CASH_VALUE
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s   %(message)s")
@@ -217,8 +217,8 @@ class HamsterClient(Session):
                 if sorted_upgrades := self.get_sorted_upgrades(self.features['buy_decision_method']):
                     upgrade = sorted_upgrades[0]
                     if upgrade['price'] <= self.balance \
-                    and self.balance > self.features['min_cash_value_in_balance'] \
-                    and num_purchases_per_cycle and counter < num_purchases_per_cycle:
+                            and self.balance > self.features['min_cash_value_in_balance'] \
+                            and num_purchases_per_cycle and counter < num_purchases_per_cycle:
                         result = self.upgrade(upgrade['id'])
                         if result.status_code == 200:
                             self.state = result.json()["clickerUser"]
@@ -226,6 +226,11 @@ class HamsterClient(Session):
                         counter += 1
                         sleep(choice(range(1, 10)))
                     else:
+                        if self.balance < self.features['min_cash_value_in_balance']:
+                            logging.info(self.log_prefix + MIN_CASH_VALUE.format(
+                                min_balance=f"{self.features['min_cash_value_in_balance']: _}",
+                                current_balance=f"{int(self.balance): _}"
+                            ))
                         break
                 else:
                     break
@@ -248,10 +253,10 @@ class HamsterClient(Session):
     @property
     def stats(self):
         return {
-            "уровень" : self.level,
-            "энергия" : self.available_taps,
-            'баланс' : self.balance,
-            "доход в час" : self.state['earnPassivePerHour']
+            "уровень": self.level,
+            "энергия": self.available_taps,
+            'баланс': f"{int(self.balance): _}",
+            "доход в час": self.state['earnPassivePerHour']
         }
 
     @property
