@@ -24,6 +24,8 @@ MSG_SYNC = "Обновление данных"
 MSG_PROXY_IP = "Прокси работает. Ваш IP через прокси: {ip}"
 MSG_PROXY_CHECK_ERROR = "Ошибка при проверке прокси. Код ответа: {status_code}"
 MSG_PROXY_CONNECTION_ERROR = "Не удалось подключиться через прокси: {error}"
+MSG_TASK_COMPLETED = "Задание выполнено. Награда: {reward}"
+MSG_TASK_NOT_COMPLETED = "Задание не выполнено"
 
 BOOST_ENERGY = "BoostFullAvailableTaps"
 DELIMITER = "=" * 150
