@@ -29,6 +29,7 @@ MSG_TASK_NOT_COMPLETED = "Задание не выполнено"
 
 BOOST_ENERGY = "BoostFullAvailableTaps"
 DELIMITER = "=" * 150
+CYCLE_BANNER = "░" * 69 + "  CYCLE {cycle_count}  " + "░" * 69
 
 HEADERS = {
     "Connection":	"keep-alive",

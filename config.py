@@ -29,6 +29,7 @@ except:
         "buy_upgrades": True,
         "buy_decision_method": "payback",
         "delay_between_attempts": 60 * 10,     # эта задержка будет применятся c доп. рандомом ( +/- 60сек )
+        "delay_between_attempts_random_magnifier": 2, # Значение может быть только >=2; Определяет рандомно выбор макс. задержки; Если 2, то задержка выбрана между [delay_between_attempts..delay_between_attempts*delay_between_attempts_random_magnifier]
         "num_purchases_per_cycle": 5,
         "min_cash_value_in_balance": 10_000_000,
     }

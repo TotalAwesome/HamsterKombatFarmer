@@ -134,6 +134,7 @@ class HamsterClient(Session):
     def boost(self, boost_name=BOOST_ENERGY):
         data = {"boostId": boost_name, "timestamp": timestamp()}
         self.post(URL_BUY_BOOST, json=data)
+        logging.info(self.log_prefix + "Применил Boost: {boostype}".format(boostype = boost_name))
 
     def upgrade(self, upgrade_name):
         data = {"upgradeId": upgrade_name, "timestamp": timestamp()}
@@ -225,7 +226,7 @@ class HamsterClient(Session):
                             self.state = result.json()["clickerUser"]
                         logging.info(self.log_prefix + MSG_BUY_UPGRADE.format(**upgrade))
                         counter += 1
-                        sleep(choice(range(1, 10)))
+                        sleep(choice(range(10, 30)))
                     else:
                         break
                 else:
